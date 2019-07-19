@@ -1,0 +1,154 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="panel center-block" style="width: 75%;">
+
+    <div class="panel-heading ">
+        <title>PICO y PLACA predictor</title>
+        <h2 class="text-center">"PICO Y PLACA" PREDICTOR</h2>
+        <hr>
+        <p class="text-left">This is a simple application that predicts whether or not you have "Pico y Placa" on a
+            specific day. Contains validations of the fields entered.<br> Made with Javascript, Jquery, Sweetalerts and Bootstrap</p>
+    </div>
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputPlate" class="col-sm-2 control-label">Plate number:</label>
+                            <div class="col-sm-6">
+                                <input type="text" maxlength="7" class="form-control" id="inputPlate"
+                                    placeholder="AAA0000" style="text-transform:uppercase">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDate" class="col-sm-2 control-label">Date:</label>
+                            <div class="col-sm-6">
+                                <div class='input-group date' id='datetimepicker1'>
+                                    <input id="datePYP" type='text' class="form-control" placeholder="MM/DD/YYYY" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer col-md-12">
+        <div class="col-md-4">
+
+        </div>
+        <div class="col-md-4 ">
+            <div class="col-md-4 center-block">
+                <button class="btn btn-default" id="SearchNew" type="button">Search</button>
+            </div>
+
+            <div class="col-md-4 center-block">
+                <button class="btn btn-default" id="ClearNew" type="button">Clear</button>
+            </div>
+
+        </div>
+        <div class="col-md-4" style="text-align: right;">
+            <p style="font-size: 10px;">by Jaime Andrés Subía</p>
+        </div>
+
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(function () {
+            $('#datetimepicker1').datetimepicker({
+                format: 'MM/DD/YYYY'
+            });
+        });
+
+        $("#SearchNew").click(function () {
+            var arrayPlate = Array.from($('#inputPlate').val());
+            var stringDate = $('#datePYP').val();
+            if (arrayPlate.length == 7) {
+                if (isNaN(arrayPlate[0]) && isNaN(arrayPlate[1]) && isNaN(arrayPlate[2]) &&
+                    !isNaN(arrayPlate[3]) && !isNaN(arrayPlate[4]) && !isNaN(arrayPlate[5]) && !isNaN(arrayPlate[6])) {
+                    if (stringDate == "") {
+                        SwalErrorInputs();
+                        ClearFields();
+                    }
+                    else {
+                        var newDatePYP = new Date(stringDate);
+                        if ((arrayPlate[6] == 1 || arrayPlate[6] == 2) && newDatePYP.getDay() == 1) {
+                            SwalPYP(stringDate, 'Monday');
+                            ClearFields();
+                        } else if ((arrayPlate[6] == 3 || arrayPlate[6] == 4) && newDatePYP.getDay() == 2) {
+                            SwalPYP(stringDate, 'Tuesday');
+                            ClearFields();
+                        } else if ((arrayPlate[6] == 5 || arrayPlate[6] == 6) && newDatePYP.getDay() == 3) {
+                            SwalPYP(stringDate, 'Wednesday');
+                            ClearFields();
+                        } else if ((arrayPlate[6] == 7 || arrayPlate[6] == 8) && newDatePYP.getDay() == 4) {
+                            SwalPYP(stringDate, 'Thursday');
+                            ClearFields();
+                        } else if ((arrayPlate[6] == 9 || arrayPlate[6] == 0) && newDatePYP.getDay() == 5) {
+                            SwalPYP(stringDate, 'Friday');
+                            ClearFields();
+                        }
+                        else {
+                            Swal.fire(
+                                'Nice!',
+                                'You can use your car this day!',
+                                'success'
+                            )
+                            ClearFields();
+                        }
+                    }
+                } else {
+                    SwalErrorInputs();
+                    ClearFields();
+                }
+            } else {
+                SwalErrorInputs();
+                ClearFields();
+            }
+
+        });
+
+        $("#ClearNew").click(function () {
+            ClearFields();
+        });
+
+        function ClearFields() {
+            $('#inputPlate').val('');
+            $('#datePYP').val('');
+        }
+
+        function SwalErrorInputs() {
+            Swal.fire({
+                type: 'error',
+                title: 'Oops...',
+                text: 'Invalid plate or date format',
+
+            })
+        }
+
+        function SwalPYP(stringDate, whatDay) {
+            Swal.fire({
+                type: 'error',
+                title: 'Oops...',
+                text: '' + stringDate + ' is ' + whatDay + '. You have "Pico y placa". Your car can´t be drived this day!',
+
+            })
+        }
+
+    });
+</script>
