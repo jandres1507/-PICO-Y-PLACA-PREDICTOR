@@ -2,6 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
@@ -41,6 +42,18 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="inputHour" class="col-sm-2 control-label">Hour:</label>
+                            <div class="col-sm-6">
+                                <div class='input-group date' id='datetimepicker3'>
+                                    <input type='text' id="hourPYP" class="form-control" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-time"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -69,43 +82,80 @@
     $(document).ready(function () {
 
         $(function () {
+            $('#inputPlate').on('keypress', function (e) {
+                if (e.which == 32)
+                    return false;
+            });
+        });
+
+        $(function () {
             $('#datetimepicker1').datetimepicker({
                 format: 'MM/DD/YYYY'
+            });
+        });
+
+        $(function () {
+            $('#datetimepicker3').datetimepicker({
+                format: 'LT'
             });
         });
 
         $("#SearchNew").click(function () {
             var arrayPlate = Array.from($('#inputPlate').val());
             var stringDate = $('#datePYP').val();
+            var stringHour = $('#hourPYP').val();
             if (arrayPlate.length == 7) {
                 if (isNaN(arrayPlate[0]) && isNaN(arrayPlate[1]) && isNaN(arrayPlate[2]) &&
                     !isNaN(arrayPlate[3]) && !isNaN(arrayPlate[4]) && !isNaN(arrayPlate[5]) && !isNaN(arrayPlate[6])) {
-                    if (stringDate == "") {
+                    if (stringDate == "" && stringHour == "") {
                         SwalErrorInputs();
                         ClearFields();
                     }
                     else {
                         var newDatePYP = new Date(stringDate);
+                        var hrs = stringHour.split(' ')[0].split(':')[0];
+                        var min = stringHour.split(' ')[0].split(':')[1];
+                        var dn = stringHour.split(' ')[1].split(':')[0];
                         if ((arrayPlate[6] == 1 || arrayPlate[6] == 2) && newDatePYP.getDay() == 1) {
-                            SwalPYP(stringDate, 'Monday');
+                            if (!isHourPYP(hrs, min, dn)) {
+                                SwalPYP(stringDate, 'monday', stringHour);
+                            } else {
+                                SwalNotPYP(stringDate, 'monday', stringHour);
+                            }
                             ClearFields();
                         } else if ((arrayPlate[6] == 3 || arrayPlate[6] == 4) && newDatePYP.getDay() == 2) {
-                            SwalPYP(stringDate, 'Tuesday');
+                            if (!isHourPYP(hrs, min, dn)) {
+                                SwalPYP(stringDate, 'tuesday', stringHour);
+                            } else {
+                                SwalNotPYP(stringDate, 'tuesday', stringHour);
+                            }
                             ClearFields();
                         } else if ((arrayPlate[6] == 5 || arrayPlate[6] == 6) && newDatePYP.getDay() == 3) {
-                            SwalPYP(stringDate, 'Wednesday');
+                            if (!isHourPYP(hrs, min, dn)) {
+                                SwalPYP(stringDate, 'wednesday', stringHour);
+                            } else {
+                                SwalNotPYP(stringDate, 'wednesday', stringHour);
+                            }
                             ClearFields();
                         } else if ((arrayPlate[6] == 7 || arrayPlate[6] == 8) && newDatePYP.getDay() == 4) {
-                            SwalPYP(stringDate, 'Thursday');
+                            if (!isHourPYP(hrs, min, dn)) {
+                                SwalPYP(stringDate, 'thursday', stringHour);
+                            } else {
+                                SwalNotPYP(stringDate, 'thursday', stringHour);
+                            }
                             ClearFields();
                         } else if ((arrayPlate[6] == 9 || arrayPlate[6] == 0) && newDatePYP.getDay() == 5) {
-                            SwalPYP(stringDate, 'Friday');
+                            if (!isHourPYP(hrs, min, dn)) {
+                                SwalPYP(stringDate, 'friday', stringHour);
+                            } else {
+                                SwalNotPYP(stringDate, 'friday', stringHour);
+                            }
                             ClearFields();
                         }
                         else {
                             Swal.fire(
                                 'Nice!',
-                                'You can use your car this day!',
+                                'You can use your car this day and at this time!',
                                 'success'
                             )
                             ClearFields();
@@ -129,23 +179,48 @@
         function ClearFields() {
             $('#inputPlate').val('');
             $('#datePYP').val('');
+            $('#hourPYP').val('');
         }
 
         function SwalErrorInputs() {
             Swal.fire({
                 type: 'error',
                 title: 'Error...',
-                text: 'Invalid plate or date format',
+                text: 'Invalid plate, date or hour format',
             })
         }
 
-        function SwalPYP(stringDate, whatDay) {
+        function SwalPYP(stringDate, whatDay, whatHour) {
+            Swal.fire({
+                type: 'warning',
+                title: 'Oops...',
+                text: 'It´s ' + whatHour + ' on ' + whatDay + ' ' + stringDate + '. You have "Pico y Placa". Your car can´t be drived this day!',
+                animation: false,
+                customClass: {
+                    popup: 'animated tada'
+                }
+            })
+        }
+
+        function SwalNotPYP(stringDate, whatDay, whatHour) {
             Swal.fire({
                 type: 'info',
                 title: 'Oops...',
-                text: 'Its ' + whatDay + ' ' + stringDate + '. You have "Pico y Placa". Your car can´t be drived this day!',
+                text: 'It´s ' + whatHour + ' on ' + whatDay + ' ' + stringDate + '. You have "Pico y Placa" today but you can drive your car at this hour. Be careful',
+                animation: false,
+                customClass: {
+                    popup: 'animated tada'
+                }
             })
         }
 
+        function isHourPYP(intHour, intMin, dn) {
+            if (Date.parse('01/01/2011 ' + intHour + ':' + intMin + ':00') >= Date.parse('01/01/2011 7:30:00') && Date.parse('01/01/2011 ' + intHour + ':' + intMin + ':00') <= Date.parse('01/01/2011 9:00:00') && dn == "AM") {
+                return false;
+            } else if (Date.parse('01/01/2011 ' + intHour + ':' + intMin + ':00') >= Date.parse('01/01/2011 4:00:00') && Date.parse('01/01/2011 ' + intHour + ':' + intMin + ':00') <= Date.parse('01/01/2011 7:30:00') && dn == "PM") {
+                return false;
+            }
+            else return true;
+        }
     });
 </script>
